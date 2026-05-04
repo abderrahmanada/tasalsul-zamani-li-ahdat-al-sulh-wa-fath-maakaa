@@ -24,32 +24,44 @@
         #final { display: none; background: rgba(255,255,255,0.05); padding: 30px; border-radius: 20px; border: 2px solid var(--gold); animation: fadeIn 1s; }
         @keyframes fadeIn { from {opacity:0} to {opacity:1} }
         .signature { font-size: 2.2rem; color: var(--gold); font-weight: bold; margin-top: 30px; border-top: 1px solid rgba(251, 191, 36, 0.3); padding-top: 20px; }
-        img { width: 350px; border-radius: 15px; margin: 20px 0; border: 3px solid var(--gold); }
+        .kaaba-img { width: 350px; border-radius: 15px; margin: 20px auto; border: 3px solid var(--gold); display: block; }
+        .kaaba-fallback { width: 350px; height: 220px; border-radius: 15px; margin: 20px auto; border: 3px solid var(--gold); display: none; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a2a1a, #0f2010); font-size: 5rem; }
+        .ayah-box { background: linear-gradient(135deg, rgba(251,191,36,0.1), rgba(251,191,36,0.05)); border: 1px solid rgba(251,191,36,0.4); border-radius: 15px; padding: 20px 30px; margin: 15px auto; max-width: 600px; }
+        .ayah-text { font-size: 2rem; color: var(--gold); line-height: 1.8; font-family: 'Amiri', serif; letter-spacing: 1px; }
+        .ayah-ref { font-size: 1rem; color: #94a3b8; margin-top: 8px; }
         .restart-btn { background: var(--gold); color: black; width: 200px; margin: 20px auto; }
     </style>
 </head>
 <body>
-
+ 
 <div id="app">
     <h2 class="header-title">🕋 لعبة السيرة: الحديبية وفتح مكة</h2>
     <div class="score-box">النقاط المحصلة: <span id="score" style="color:var(--gold)">0</span></div>
-    <div id="timer">⏱️ 08</div>
-
+    <div id="timer">⏱️ 10</div>
+ 
     <div id="game-zone">
         <div id="q"></div>
         <div id="options"></div>
         <div id="info"></div>
     </div>
-
+ 
     <div id="final">
         <h2 style="font-size: 2.5rem;">🎉 أحسنت الإنجاز!</h2>
         <p style="font-size: 1.3rem;">لقد أتممت رحلة استكشاف قيم السيرة النبوية بنجاح.</p>
-        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Kaaba_Masjid_al-Haram.jpg">
+        <img class="kaaba-img" id="kaabaImg"
+             src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Kaaba_Masjid_al-Haram.jpg/400px-Kaaba_Masjid_al-Haram.jpg"
+             onerror="this.style.display='none'; document.getElementById('kaabaFallback').style.display='flex';"
+             alt="الكعبة المشرفة">
+        <div class="kaaba-fallback" id="kaabaFallback">🕋</div>
+        <div class="ayah-box">
+            <div class="ayah-text">﴿ إِنَّا فَتَحْنَا لَكَ فَتْحًا مُّبِينًا ﴾</div>
+            <div class="ayah-ref">سورة الفتح – الآية 1</div>
+        </div>
         <div class="signature">مع تحيات الأستاذة سعاد الأخريسي ❤️</div>
         <button class="restart-btn" onclick="location.reload()">إعادة التحدي 🔄</button>
     </div>
 </div>
-
+ 
 <script>
 function beep(f,d){
     try {
@@ -64,7 +76,7 @@ function beep(f,d){
 }
 function ok(){beep(600,0.15); setTimeout(()=>beep(800,0.15),120);}
 function no(){beep(150,0.25);}
-
+ 
 const questions=[
     {
         q:"ما الذي دفع النبي ﷺ للخروج نحو مكة في السنة السادسة هجرية؟",
@@ -122,8 +134,8 @@ const questions=[
         c:2, info:"القيمة: الشورى لتدبير الخلاف."
     },
     {
-        q:"لماذا حلق الصحابة رؤوسهم بعد الصلح؟",
-        a:["امتثالًا لأمر الله رغم صعوبة الموقف.","لإنهاء الرحلة بسرعة دون التزام.","بسبب ضغط قريش عليهم."],
+        q:"لماذا حلق الصحابة رؤوسهم ونحروا الهدي بعد الصلح رغم عدم دخولهم مكة؟",
+        a:["امتثالًا لأمر النبي ﷺ وإتمامًا لشعائر الإحرام حيث أحلّوا في مكانهم.","بسبب ضغط قريش عليهم لإنهاء الأمر سريعًا.","لأنهم أرادوا الرجوع إلى المدينة دون إتمام العمرة."],
         c:0, info:"القيمة: الطاعة والاتباع من شروط الإيمان."
     },
     {
@@ -165,18 +177,53 @@ const questions=[
         q:"ما معنى تحطيم الرسول الكريم للأصنام؟",
         a:["تغيير شكلي دون أثر.","تأكيد التوحيد وإزالة مظاهر الشرك.","إجراء رمزي فقط."],
         c:1, info:"القيمة: التوحيد."
+    },
+    {
+        q:"لماذا قبل النبي ﷺ حذف البسملة وعبارة 'رسول الله' من وثيقة الصلح رغم اعتراض الصحابة؟",
+        a:["لأنه لم يكن مهتمًا بصياغة الوثيقة.","تنازلًا تفاوضيًا لإنجاح الصلح مع الحفاظ على جوهر الاتفاق.","لأن قريشًا هددت بالحرب إن لم يقبل."],
+        c:1, info:"القيمة: المرونة في التفاوض والانسحاب التكتيكي لتحقيق الهدف الأسمى."
+    },
+    {
+        q:"كيف استمال النبي ﷺ الحليس بن علقمة سيد الأحابيش إلى جانبه؟",
+        a:["استعان به في قتال قريش مباشرة.","أظهر له الهدي المُقلَّد ليثبت نيته السلمية فانحاز الحليس للحق.","أرسل إليه هدايا ثمينة لشراء موقفه."],
+        c:1, info:"القيمة: نصرة الحق باستمالة القلوب بالحجة والبرهان."
+    },
+    {
+        q:"لماذا سمّى القرآن الكريم صلحَ الحديبية فتحًا مبينًا رغم أن المسلمين لم يدخلوا مكة؟",
+        a:["لأن المسلمين انتصروا في معركة عسكرية كبرى.","لأن عدد المسلمين تضاعف بفضل السلام وانتشار الدعوة مما مهّد لفتح مكة لاحقًا.","لأن قريشًا أعلنت إسلامها في الحديبية."],
+        c:1, info:"القيمة: الصبر على المكاره يفتح أبواب النصر الكبير."
+    },
+    {
+        q:"كيف أكرم النبي ﷺ أبا سفيان يوم فتح مكة رغم طول عدائه للإسلام؟",
+        a:["أهانه أمام الناس عقوبةً على ماضيه.","جعل داره ملجأً آمنًا وأعلن أن من دخلها فهو آمن، تكريمًا له واحترامًا لمكانته.","أبعده عن مكة حتى لا يؤثر على المسلمين."],
+        c:1, info:"القيمة: العدل — الإسلام لا يُذِلّ عزيزًا ولا يستعبد حرًّا."
+    },
+    {
+        q:"جاء أبو جندل بن سهيل مسلماً مقيداً يستغيث يوم الحديبية، فماذا فعل النبي ﷺ؟",
+        a:["رفض إعادته وأعلن الحرب على قريش دفاعاً عنه.","أعاده إلى قريش وفاءً ببنود الصلح رغم مشقة الموقف، وطمأنه بأن الله سيجعل له فرجاً.","أخفاه في معسكر المسلمين دون علم قريش."],
+        c:1, info:"القيمة: الوفاء بالعهد حتى في أشد المواقف إيلاماً."
+    },
+    {
+        q:"ماذا فعل النبي ﷺ مباشرةً بعد صلح الحديبية على صعيد الدعوة؟",
+        a:["أوقف الدعوة ريثما تستقر الأوضاع مع قريش.","أرسل رسائل إلى هرقل وكسرى والنجاشي وغيرهم يدعوهم إلى الإسلام.","اكتفى بتعزيز الإسلام داخل المدينة فقط."],
+        c:1, info:"القيمة: الرؤية الاستراتيجية وعالمية الدعوة الإسلامية."
+    },
+    {
+        q:"حين بركت ناقة النبي ﷺ القصواء عند الحديبية ورفضت التقدم، ماذا قال النبي ﷺ؟",
+        a:["أمر بتغيير الناقة والمضي قدماً نحو مكة.","قال: ما خلأت ولكن حبسها حابس الفيل، وأدرك أن الله يدعوه إلى الصلح لا الحرب.","اعتبرها علامة سيئة وفكّر في الرجوع إلى المدينة."],
+        c:1, info:"القيمة: التوكل على الله وقراءة الإشارات الربانية."
     }
 ];
-
-let i=0, score=0, timer, time=8;
-
+ 
+let i=0, score=0, timer, time=10;
+ 
 function shuffle(arr){
     return arr.map(x=>({x,sort:Math.random()})).sort((a,b)=>a.sort-b.sort).map(a=>a.x);
 }
-
+ 
 function startTimer(){
     clearInterval(timer);
-    time=8;
+    time=10;
     document.getElementById("timer").innerHTML="⏱️ "+time;
     timer=setInterval(()=>{
         time--;
@@ -189,7 +236,7 @@ function startTimer(){
         }
     },1000);
 }
-
+ 
 function load(){
     if(i>=questions.length){
         document.getElementById("game-zone").style.display="none";
@@ -217,12 +264,12 @@ function load(){
                 document.getElementById("info").innerHTML=q.info;
                 ok();
                 i++;
-                setTimeout(load,1200);
+                setTimeout(load,4000);
             }else{
                 b.classList.add("wrong");
                 no();
                 i++;
-                setTimeout(load,1200);
+                setTimeout(load,4000);
             }
         };
         box.appendChild(b);
@@ -231,4 +278,4 @@ function load(){
 load();
 </script>
 </body>
-</html
+</html>
