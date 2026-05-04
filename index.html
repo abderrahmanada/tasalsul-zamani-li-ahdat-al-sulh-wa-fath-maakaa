@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لعبة السيرة والقيم التربوية - الأستاذة سعاد الأخريسي</title>
+    <style>
+        :root { --gold: #fbbf24; --green: #22c55e; --blue: #38bdf8; --slate: #0f172a; }
+        body { margin: 0; font-family: 'Amiri', serif, Arial; background: var(--slate); color: white; text-align: center; }
+        #app { max-width: 850px; margin: auto; padding: 20px; min-height: 90vh; display: flex; flex-direction: column; justify-content: center; }
+        .header-title { color: var(--gold); font-size: 2.2rem; margin-bottom: 10px; }
+        .score-box { background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; display: inline-block; margin-bottom: 20px; border: 1px solid var(--blue); }
+        #q { font-size: 1.8rem; margin: 20px 0; min-height: 80px; color: #f8fafc; line-height: 1.4; }
+        #options { display: grid; gap: 12px; }
+        button { 
+            width: 100%; padding: 15px; font-size: 1.2rem; border: none; border-radius: 8px; 
+            cursor: pointer; background: #1e293b; color: white; transition: 0.3s; 
+            border: 1px solid #334155; font-family: inherit;
+        }
+        button:hover { background: #334155; transform: scale(1.01); }
+        .correct { background: var(--green) !important; color: white; font-weight: bold; }
+        .wrong { background: #ef4444 !important; color: white; }
+        #timer { font-size: 1.5rem; color: var(--blue); font-weight: bold; margin: 15px; }
+        #info { margin-top: 20px; color: var(--gold); font-size: 1.4rem; font-weight: bold; min-height: 30px; }
+        #final { display: none; background: rgba(255,255,255,0.05); padding: 30px; border-radius: 20px; border: 2px solid var(--gold); animation: fadeIn 1s; }
+        @keyframes fadeIn { from {opacity:0} to {opacity:1} }
+        .signature { font-size: 2.2rem; color: var(--gold); font-weight: bold; margin-top: 30px; border-top: 1px solid rgba(251, 191, 36, 0.3); padding-top: 20px; }
+        img { width: 350px; border-radius: 15px; margin: 20px 0; border: 3px solid var(--gold); }
+        .restart-btn { background: var(--gold); color: black; width: 200px; margin: 20px auto; }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <h2 class="header-title">🕋 لعبة السيرة: الحديبية وفتح مكة</h2>
+    <div class="score-box">النقاط المحصلة: <span id="score" style="color:var(--gold)">0</span></div>
+    <div id="timer">⏱️ 08</div>
+
+    <div id="game-zone">
+        <div id="q"></div>
+        <div id="options"></div>
+        <div id="info"></div>
+    </div>
+
+    <div id="final">
+        <h2 style="font-size: 2.5rem;">🎉 أحسنت الإنجاز!</h2>
+        <p style="font-size: 1.3rem;">لقد أتممت رحلة استكشاف قيم السيرة النبوية بنجاح.</p>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Kaaba_Masjid_al-Haram.jpg">
+        <div class="signature">مع تحيات الأستاذة سعاد الأخريسي ❤️</div>
+        <button class="restart-btn" onclick="location.reload()">إعادة التحدي 🔄</button>
+    </div>
+</div>
+
+<script>
+function beep(f,d){
+    try {
+        let c=new (window.AudioContext || window.webkitAudioContext)();
+        let o=c.createOscillator();
+        let g=c.createGain();
+        o.frequency.value=f;
+        o.connect(g); g.connect(c.destination);
+        o.start(); g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+d);
+        setTimeout(()=>o.stop(),d*1000);
+    } catch(e) {}
+}
+function ok(){beep(600,0.15); setTimeout(()=>beep(800,0.15),120);}
+function no(){beep(150,0.25);}
+
+const questions=[
+    {
+        q:"ما الذي دفع النبي ﷺ للخروج نحو مكة في السنة السادسة هجرية؟",
+        a:["رؤيا صادقة تدل على دخول مكة فبادر لتحقيقها بثقة.","رغبة في مواجهة قريش عسكريًا دون سبب مباشر.","محاولة فرض السيطرة على مكة بالقوة."],
+        c:0, info:"القيمة: الإيمان بالغيب و تصديق الوحي."
+    },
+    {
+        q:"كيف خرج النبي ﷺ إلى مكة؟",
+        a:["خرج بجيش مستعد للقتال منذ البداية.","خرج مع الصحابة بنية العمرة دون تجهيز للقتال.","خرج سرًا دون علم الصحابة."],
+        c:1, info:"القيمة: السلم و تعظيم بيت الله."
+    },
+    {
+        q:"ما موقف قريش من دخول المسلمين إلى مكة؟",
+        a:["رحبت بهم وسمحت لهم بالعمرة مباشرة.","لم يكن لها موقف واضح.","منعتهم من الدخول رغم نيتهم السلمية."],
+        c:2, info:"القيمة: اختبار الصبر."
+    },
+    {
+        q:"كيف تعامل النبي ﷺ مع منع قريش؟",
+        a:["اختار إرسال عثمان بن عفان للتفاوض وتجنب الصدام رغم القدرة.","أمر بالهجوم المباشر على مكة.","انسحب من الحديبية دون محاولة حل."],
+        c:0, info:"القيمة: تجنب الصدام بالتفاوض."
+    },
+    {
+        q:"لماذا رفض عثمان أداء العمرة دون النبي ﷺ؟",
+        a:["يدل على رغبته في أداء العمرة بشكل فردي.","يعبر عن وفائه للنبي ﷺ وحرصه على مرافقة القيادة.","يعكس عدم اهتمامه بموقف الجماعة."],
+        c:1, info:"القيمة: الوفاء بالأمانة."
+    },
+    {
+        q:"كيف أثرت شائعة مقتل عثمان على المسلمين؟",
+        a:["أدت إلى تفرق المسلمين وابتعادهم عن المواجهة.","زادت ثبات المسلمين ويقينهم واستعدادهم للتضحية.","دفعت المسلمين إلى الانسحاب خوفًا من التصعيد."],
+        c:1, info:"القيمة: الثبات واليقين من نصر الله."
+    },
+    {
+        q:"ما الذي تعبر عنه بيعة الرضوان؟",
+        a:["تعبر عن رغبتهم في تجنب المواجهة فقط.","تدل على اتفاق مؤقت دون التزام فعلي.","تعكس استعداد الصحابة للتضحية ويقينهم من النصر."],
+        c:2, info:"القيمة: الطاعة والاتباع من شروط الإيمان."
+    },
+    {
+        q:"لماذا امتنع الصحابة عن الصيد الذي جاءهم وهم محرمون؟",
+        a:["التزامًا بأمر الله واحترامًا لأحكام الإحرام.","خوفًا من قريش رغم غياب التهديد المباشر.","لعدم توفر وسائل الصيد في ذلك المكان."],
+        c:0, info:"القيمة: الإستجابة لحكم الله."
+    },
+    {
+        q:"لماذا اختارت قريش سهيل بن عمرو للتفاوض مع المسلمين؟",
+        a:["لأنه شخص بسيط يمكن التأثير عليه بسهولة.","لأنه مفاوض قادر على عرض موقف قريش بوضوح.","لأنه لا يهتم بنتائج الاتفاق."],
+        c:1, info:"القيمة: اختيار الكفاءة."
+    },
+    {
+        q:"لماذا أصرّ النبي ﷺ على الصلح رغم قسوة الشروط؟",
+        a:["لأنه لم يكن قادرًا على المواجهة في ذلك الوقت.","تعظيمًا لحرمة البيت وتجنبًا للقتال داخل الحرم.","لأنه أراد التراجع عن العمرة."],
+        c:1, info:"القيمة: تعظيم حرمات الله."
+    },
+    {
+        q:"كيف ساهمت أم سلمة في حل الأزمة حين رفض الصحابة التحلّل؟",
+        a:["رفضت التدخل في القرار وابتعدت عن الحدث.","شجعت الصحابة على الاعتراض.","قدمت مشورة عملية ساعدت على تهدئة الصحابة."],
+        c:2, info:"القيمة: الشورى لتدبير الخلاف."
+    },
+    {
+        q:"لماذا حلق الصحابة رؤوسهم بعد الصلح؟",
+        a:["امتثالًا لأمر الله رغم صعوبة الموقف.","لإنهاء الرحلة بسرعة دون التزام.","بسبب ضغط قريش عليهم."],
+        c:0, info:"القيمة: الطاعة والاتباع من شروط الإيمان."
+    },
+    {
+        q:"ما أثر هدنة عشر سنوات المتفق عليها؟",
+        a:["أدت إلى توقف الدعوة وإضعاف المسلمين.","أتاحت نشر الدعوة وتقوية المسلمين دون قتال.","لم يكن لها تأثير واضح."],
+        c:1, info:"القيمة: التخطيط و التوكل على الله."
+    },
+    {
+        q:"ما فائدة بند السماح للمسلمين بالتحالف مع القبائل؟",
+        a:["أضعف المسلمين أمام القبائل.","لم يكن له أي أثر فعلي.","وسع النفوذ وحقق السلم وتقوية المجتمع."],
+        c:2, info:"القيمة: التحالف لتحقيق السلم وتقوية المجتمع."
+    },
+    {
+        q:"ما دلالة عمرة القضاء في السنة السابعة هجرية؟",
+        a:["تؤكد صدق وعد الله ونجاح التفاوض.","تعبر عن تراجع المسلمين عن أهدافهم.","تدل على ضعف موقف المسلمين."],
+        c:0, info:"القيمة: تحقق وعد الله."
+    },
+    {
+        q:"ما الحدث الذي تحقق بعد صلح الحديبية؟",
+        a:["انسحاب المسلمين من الدعوة.","فتح خيبر وتقوية وضع المسلمين.","تراجع قوة المسلمين."],
+        c:1, info:"القيمة: الثقة في نصر الله."
+    },
+    {
+        q:"ماذا كشف نقض قريش للعهد؟",
+        a:["أكد استمرار السلام بين الطرفين.","كشف خيانتهم وفتح الطريق للحسم.","أدى إلى تراجع قوة المسلمين."],
+        c:1, info:"القيمة: الوفاء بالعهد."
+    },
+    {
+        q:"كيف تم فتح مكة في السنة الثامنة هجرية؟",
+        a:["بهجوم مفاجئ دون تخطيط.","بانسحاب المسلمين.","بخطة منظمة تهدف إلى تجنب القتال."],
+        c:2, info:"القيمة: الحكمة."
+    },
+    {
+        q:"فيم يشبه عفو النبي ﷺ عن كفار قريش موقف يوسف عليه السلام؟",
+        a:["في العفو عند القدرة كما في قوله لا تثريب عليكم.","في الانتقام من الخصوم بعد النصر.","في معاقبة جميع المخالفين."],
+        c:0, info:"القيمة: العفو عند القدرة اقتداءً بالأنبياء."
+    },
+    {
+        q:"ما معنى تحطيم الرسول الكريم للأصنام؟",
+        a:["تغيير شكلي دون أثر.","تأكيد التوحيد وإزالة مظاهر الشرك.","إجراء رمزي فقط."],
+        c:1, info:"القيمة: التوحيد."
+    }
+];
+
+let i=0, score=0, timer, time=8;
+
+function shuffle(arr){
+    return arr.map(x=>({x,sort:Math.random()})).sort((a,b)=>a.sort-b.sort).map(a=>a.x);
+}
+
+function startTimer(){
+    clearInterval(timer);
+    time=8;
+    document.getElementById("timer").innerHTML="⏱️ "+time;
+    timer=setInterval(()=>{
+        time--;
+        document.getElementById("timer").innerHTML="⏱️ "+(time < 10 ? '0'+time : time);
+        if(time<=0){
+            clearInterval(timer);
+            no();
+            i++;
+            setTimeout(load,500);
+        }
+    },1000);
+}
+
+function load(){
+    if(i>=questions.length){
+        document.getElementById("game-zone").style.display="none";
+        document.getElementById("timer").style.display="none";
+        document.getElementById("final").style.display="block";
+        return;
+    }
+    startTimer();
+    let q=questions[i];
+    document.getElementById("q").innerHTML=q.q;
+    document.getElementById("info").innerHTML="";
+    let answers=q.a.map((t,idx)=>({t,idx}));
+    answers=shuffle(answers);
+    let box=document.getElementById("options");
+    box.innerHTML="";
+    answers.forEach(obj=>{
+        let b=document.createElement("button");
+        b.innerHTML=obj.t;
+        b.onclick=()=>{
+            clearInterval(timer);
+            if(obj.idx===q.c){
+                b.classList.add("correct");
+                score++;
+                document.getElementById("score").innerHTML=score;
+                document.getElementById("info").innerHTML=q.info;
+                ok();
+                i++;
+                setTimeout(load,1200);
+            }else{
+                b.classList.add("wrong");
+                no();
+                i++;
+                setTimeout(load,1200);
+            }
+        };
+        box.appendChild(b);
+    });
+}
+load();
+</script>
+</body>
+</html
